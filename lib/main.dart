@@ -40,12 +40,18 @@ class _MyAppState extends State<MyApp> {
   }) =>
       ((newPrice - currentPrice) / newPrice).abs() * 100;
 
-  double? ammBase({
+  double? ammSwap({
     double? buyBase,
     double? sellBase,
+    double? buyQuote,
+    double? sellQuote,
   }) {
-    if (buyBase == null && sellBase == null) return null;
+    if (buyBase == null &&
+        sellBase == null &&
+        buyQuote == null &&
+        sellQuote == null) return null;
     if (buyBase != null && buyBase >= _base) return null;
+    if (buyQuote != null && buyQuote >= _quote) return null;
 
     final double constantProduct = _base * _quote;
     if (buyBase != null) {
@@ -58,20 +64,7 @@ class _MyAppState extends State<MyApp> {
       final double newQuote = constantProduct / newBase;
 
       return newQuote - _quote;
-    }
-
-    return null;
-  }
-
-  double? ammQuote({
-    double? buyQuote,
-    double? sellQuote,
-  }) {
-    if (buyQuote == null && sellQuote == null) return null;
-    if (buyQuote != null && buyQuote >= _quote) return null;
-
-    final double constantProduct = _base * _quote;
-    if (buyQuote != null) {
+    } else if (buyQuote != null) {
       final double newQuote = _quote - buyQuote;
       final double newBase = constantProduct / newQuote;
 
@@ -274,7 +267,7 @@ class _MyAppState extends State<MyApp> {
                           double? inputBase = double.tryParse(input);
                           if (inputBase != null) {
                             final double? sellBaseQuote =
-                                ammBase(sellBase: inputBase);
+                                ammSwap(sellBase: inputBase);
                             if (sellBaseQuote != null) {
                               _sellNewPrice = _getPrice(
                                   base: _base + inputBase,
@@ -285,7 +278,7 @@ class _MyAppState extends State<MyApp> {
                                   newPrice: _sellNewPrice);
                             }
                             final double? buyBaseQuote =
-                                ammBase(buyBase: inputBase);
+                                ammSwap(buyBase: inputBase);
                             if (buyBaseQuote != null) {
                               _buyNewPrice = _getPrice(
                                   base: _base - inputBase,
@@ -326,7 +319,7 @@ class _MyAppState extends State<MyApp> {
                           double? inputQuote = double.tryParse(input);
                           if (inputQuote != null) {
                             final double? sellQuoteBase =
-                                ammQuote(sellQuote: inputQuote);
+                                ammSwap(sellQuote: inputQuote);
                             if (sellQuoteBase != null) {
                               _sellNewPrice = _getPrice(
                                   base: _base - sellQuoteBase.abs(),
@@ -337,7 +330,7 @@ class _MyAppState extends State<MyApp> {
                                   newPrice: _sellNewPrice);
                             }
                             final double? buyQuoteBase =
-                                ammQuote(buyQuote: inputQuote);
+                                ammSwap(buyQuote: inputQuote);
                             if (buyQuoteBase != null) {
                               _buyNewPrice = _getPrice(
                                   base: _base + buyQuoteBase.abs(),
@@ -378,7 +371,7 @@ class _MyAppState extends State<MyApp> {
                               _operationQuoteController.text.trim());
 
                           if (sellBase != null && sellQuote == null) {
-                            _ammBaseResult = ammBase(sellBase: sellBase);
+                            _ammBaseResult = ammSwap(sellBase: sellBase);
                             if (_ammBaseResult != null) {
                               if (sellBase > _currentBase) {
                                 _alertMessage =
@@ -406,7 +399,7 @@ class _MyAppState extends State<MyApp> {
                                   _currentQuote + _ammBaseResult!.abs();
                             }
                           } else if (sellQuote != null && sellBase == null) {
-                            _ammQuoteResult = ammQuote(sellQuote: sellQuote);
+                            _ammQuoteResult = ammSwap(sellQuote: sellQuote);
                             if (_ammQuoteResult != null) {
                               if (sellQuote > _currentQuote) {
                                 _alertMessage =
@@ -463,7 +456,7 @@ class _MyAppState extends State<MyApp> {
                               _operationQuoteController.text.trim());
 
                           if (buyBase != null && buyQuote == null) {
-                            _ammBaseResult = ammBase(buyBase: buyBase);
+                            _ammBaseResult = ammSwap(buyBase: buyBase);
                             if (_ammBaseResult != null) {
                               if (_ammBaseResult!.abs() > _currentQuote) {
                                 _alertMessage =
@@ -491,7 +484,7 @@ class _MyAppState extends State<MyApp> {
                                   _currentQuote - _ammBaseResult!.abs();
                             }
                           } else if (buyQuote != null && buyBase == null) {
-                            _ammQuoteResult = ammQuote(buyQuote: buyQuote);
+                            _ammQuoteResult = ammSwap(buyQuote: buyQuote);
                             if (_ammQuoteResult != null) {
                               if (_ammQuoteResult!.abs() > _currentBase) {
                                 _alertMessage =
